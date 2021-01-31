@@ -73,7 +73,8 @@ resource "google_cloudbuild_trigger" "github_non_master_trigger" {
   description = "${each.value} - terraform plan."
 
   github {
-    name = each.value
+    name  = each.value
+    owner = "febus982"
     push {
       branch       = local.apply_branches_regex
       invert_regex = true
