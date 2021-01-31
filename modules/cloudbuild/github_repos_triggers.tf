@@ -23,6 +23,7 @@ variable "create_github_repos_triggers" {
 
 resource "github_repository" "github_repo" {
   for_each = var.create_github_repos ? toset(var.cloud_source_repos) : []
+  provider = "github"
 
   name                   = each.value
   delete_branch_on_merge = true
