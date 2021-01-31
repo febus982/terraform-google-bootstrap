@@ -142,22 +142,13 @@ resource "google_kms_crypto_key_iam_binding" "cloud_build_crypto_key_encrypter" 
   Create Cloud Source Repos
 *******************************************/
 
-//resource "google_sourcerepo_repository" "gcp_repo" {
-//  for_each = var.create_cloud_source_repos ? toset(var.cloud_source_repos) : []
-//  project  = module.cloudbuild_project.project_id
-//  name     = each.value
-//  depends_on = [
-//    google_project_service.cloudbuild_apis,
-//  ]
-//}
-
-resource "github_repository" "gh_repo" {
+resource "google_sourcerepo_repository" "gcp_repo" {
   for_each = var.create_cloud_source_repos ? toset(var.cloud_source_repos) : []
-
-  name                   = each.value
-  delete_branch_on_merge = true
-  visibility             = "public"
-  auto_init              = true
+  project  = module.cloudbuild_project.project_id
+  name     = each.value
+  depends_on = [
+    google_project_service.cloudbuild_apis,
+  ]
 }
 
 /******************************************
@@ -180,16 +171,9 @@ resource "google_cloudbuild_trigger" "master_trigger" {
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - terraform apply."
 
-//  trigger_template {
-//    branch_name = local.apply_branches_regex
-//    repo_name   = each.value
-//  }
-
-  github {
-    name = each.value
-    push {
-      branch = local.apply_branches_regex
-    }
+  trigger_template {
+    branch_name = local.apply_branches_regex
+    repo_name   = each.value
   }
 
   substitutions = {
@@ -204,7 +188,7 @@ resource "google_cloudbuild_trigger" "master_trigger" {
 
   filename = var.cloudbuild_apply_filename
   depends_on = [
-    github_repository.gh_repo,
+    google_sourcerepo_repository.gcp_repo,
   ]
 }
 
@@ -217,18 +201,10 @@ resource "google_cloudbuild_trigger" "non_master_trigger" {
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - terraform plan."
 
-//  trigger_template {
-//    invert_regex = true
-//    branch_name  = local.apply_branches_regex
-//    repo_name    = each.value
-//  }
-
-  github {
-    name = each.value
-    push {
-      branch       = local.apply_branches_regex
-      invert_regex = true
-    }
+  trigger_template {
+    invert_regex = true
+    branch_name  = local.apply_branches_regex
+    repo_name    = each.value
   }
 
   substitutions = {
@@ -243,7 +219,7 @@ resource "google_cloudbuild_trigger" "non_master_trigger" {
 
   filename = var.cloudbuild_plan_filename
   depends_on = [
-    github_repository.gh_repo,
+    google_sourcerepo_repository.gcp_repo,
   ]
 }
 
