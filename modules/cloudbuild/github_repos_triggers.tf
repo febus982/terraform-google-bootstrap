@@ -95,3 +95,8 @@ resource "google_cloudbuild_trigger" "github_non_master_trigger" {
     github_repository.github_repo,
   ]
 }
+
+output "github_repos" {
+  description = "List of Github Repos created by the module, linked to Cloud Build triggers."
+  value       = github_repository.github_repo
+}

@@ -25,8 +25,8 @@ output "gcs_bucket_cloudbuild_artifacts" {
 }
 
 output "csr_repos" {
-  description = "List of Github Repos created by the module, linked to Cloud Build triggers."
-  value       = github_repository.gh_repo
+  description = "List of Cloud Source Repos created by the module, linked to Cloud Build triggers."
+  value = google_sourcerepo_repository.gcp_repo
 }
 
 output "kms_keyring" {
