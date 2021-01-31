@@ -17,6 +17,11 @@ variable "create_github_repos_triggers" {
   default = false
 }
 
+variable "github_owner" {
+  type    = string
+  default = ""
+}
+
 /* ----------------------------------------
     Resources
    ---------------------------------------- */
@@ -42,6 +47,7 @@ resource "google_cloudbuild_trigger" "github_master_trigger" {
 
   github {
     name = each.value
+    owner = var.github_owner
     push {
       branch = local.apply_branches_regex
     }
@@ -74,7 +80,7 @@ resource "google_cloudbuild_trigger" "github_non_master_trigger" {
 
   github {
     name  = each.value
-    owner = "febus982"
+    owner = var.github_owner
     push {
       branch       = local.apply_branches_regex
       invert_regex = true
