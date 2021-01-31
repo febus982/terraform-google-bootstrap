@@ -36,7 +36,7 @@ resource "github_repository" "github_repo" {
  ***********************************************/
 
 resource "google_cloudbuild_trigger" "github_master_trigger" {
-  for_each    = var.create_cloud_source_repos ? toset(var.cloud_source_repos) : []
+  for_each    = var.create_github_repos_triggers ? toset(var.cloud_source_repos) : []
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - terraform apply."
 
@@ -68,7 +68,7 @@ resource "google_cloudbuild_trigger" "github_master_trigger" {
  ***********************************************/
 
 resource "google_cloudbuild_trigger" "github_non_master_trigger" {
-  for_each    = var.create_cloud_source_repos ? toset(var.cloud_source_repos) : []
+  for_each    = var.create_github_repos_triggers ? toset(var.cloud_source_repos) : []
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - terraform plan."
 
