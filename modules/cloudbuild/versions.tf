@@ -22,10 +22,6 @@ terraform {
       source  = "hashicorp/google"
       version = ">= 3.50"
     }
-    github = {
-      source  = "integrations/github"
-      version = ">= 4.3.1"
-    }
   }
 
   provider_meta "google" {
