@@ -61,6 +61,7 @@ resource "google_cloudbuild_trigger" "github_master_trigger" {
     _STATE_BUCKET_NAME    = var.terraform_state_bucket
     _ARTIFACT_BUCKET_NAME = google_storage_bucket.cloudbuild_artifacts.name
     _TF_ACTION            = "apply"
+    _IMAGE_TAG            = "0.14"
   }
 
   filename = var.cloudbuild_apply_filename
@@ -95,6 +96,7 @@ resource "google_cloudbuild_trigger" "github_non_master_trigger" {
     _STATE_BUCKET_NAME    = var.terraform_state_bucket
     _ARTIFACT_BUCKET_NAME = google_storage_bucket.cloudbuild_artifacts.name
     _TF_ACTION            = "plan"
+    _IMAGE_TAG            = "0.14"
   }
 
   filename = var.cloudbuild_plan_filename
