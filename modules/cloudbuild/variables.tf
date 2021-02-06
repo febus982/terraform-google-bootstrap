@@ -155,6 +155,12 @@ variable "cloudbuild_plan_filename" {
   default     = "cloudbuild-tf-plan.yaml"
 }
 
+variable "cloudbuild_plan_destroy_filename" {
+  description = "Path and name of Cloud Build YAML definition used for terraform plan."
+  type        = string
+  default     = "cloudbuild-tf-plan-destroy.yaml"
+}
+
 variable "cloudbuild_apply_filename" {
   description = "Path and name of Cloud Build YAML definition used for terraform apply."
   type        = string
