@@ -32,6 +32,8 @@ module "github_repository" {
   source          = "./modules/github_repository"
   repository_name = each.value
 
+  terraform_apply_branches = var.terraform_apply_branches
+
   private = true
 }
 
