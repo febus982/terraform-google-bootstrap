@@ -1,6 +1,6 @@
 resource "github_repository" "repository" {
   name                   = var.repository_name
-  delete_branch_on_merge = true
+  delete_branch_on_merge = false
   visibility             = var.private ? "private" : "public"
   auto_init              = true
 }
