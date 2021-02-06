@@ -20,6 +20,7 @@ locals {
   impersonation_enabled_count = var.sa_enable_impersonation == true ? 1 : 0
   activate_apis               = distinct(var.activate_apis)
   apply_branches_regex        = "^(${join("|", var.terraform_apply_branches)})$"
+  destroy_branches_regex      = "^destroy/(${join("|", var.terraform_apply_branches)})$"
 }
 
 resource "random_id" "suffix" {
