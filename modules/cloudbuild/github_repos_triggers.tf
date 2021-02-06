@@ -26,21 +26,31 @@ variable "github_owner" {
     Resources
    ---------------------------------------- */
 
-resource "github_repository" "github_repo" {
+//resource "github_repository" "github_repo" {
+//  for_each = var.create_github_repos ? toset(var.cloud_source_repos) : []
+//
+//  name                   = each.value
+//  delete_branch_on_merge = true
+//  visibility             = var.private_repositories ? "private" : "public"
+//  auto_init              = true
+//}
+
+
+module "github_repository" {
   for_each = var.create_github_repos ? toset(var.cloud_source_repos) : []
 
-  name                   = each.value
-  delete_branch_on_merge = true
-  visibility             = var.private_repositories ? "private" : "public"
-  auto_init              = true
+  source          = "./modules/github_repository"
+  repository_name = each.value
+
+  private = true
 }
 
 
 /***********************************************
- Cloud Build - Master branch triggers
+ Cloud Build - Apply triggers
  ***********************************************/
 
-resource "google_cloudbuild_trigger" "github_master_trigger" {
+resource "google_cloudbuild_trigger" "github_apply_trigger" {
   for_each    = var.create_github_repos_triggers ? toset(var.cloud_source_repos) : []
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - apply"
@@ -66,15 +76,15 @@ resource "google_cloudbuild_trigger" "github_master_trigger" {
 
   filename = var.cloudbuild_apply_filename
   depends_on = [
-    github_repository.github_repo,
+    module.github_repository,
   ]
 }
 
 /***********************************************
- Cloud Build - Non Master branch triggers
+ Cloud Build - Plan triggers
  ***********************************************/
 
-resource "google_cloudbuild_trigger" "github_non_master_trigger" {
+resource "google_cloudbuild_trigger" "github_plan_trigger" {
   for_each    = var.create_github_repos_triggers ? toset(var.cloud_source_repos) : []
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - plan"
@@ -100,7 +110,7 @@ resource "google_cloudbuild_trigger" "github_non_master_trigger" {
 
   filename = var.cloudbuild_plan_filename
   depends_on = [
-    github_repository.github_repo,
+    module.github_repository,
   ]
 }
 
@@ -108,7 +118,7 @@ resource "google_cloudbuild_trigger" "github_non_master_trigger" {
  Cloud Build - Destroy plan branch triggers
  ***********************************************/
 
-resource "google_cloudbuild_trigger" "github_destroy_plan" {
+resource "google_cloudbuild_trigger" "github_destroy_plan_trigger" {
   for_each    = var.create_github_repos_triggers ? toset(var.cloud_source_repos) : []
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - destroy plan"
@@ -134,7 +144,7 @@ resource "google_cloudbuild_trigger" "github_destroy_plan" {
 
   filename = var.cloudbuild_plan_filename
   depends_on = [
-    github_repository.github_repo,
+    module.github_repository,
   ]
 }
 
@@ -142,7 +152,7 @@ resource "google_cloudbuild_trigger" "github_destroy_plan" {
  Cloud Build - Destroy apply branch triggers
  ***********************************************/
 
-resource "google_cloudbuild_trigger" "github_destroy_plan" {
+resource "google_cloudbuild_trigger" "github_destroy_apply_trigger" {
   for_each    = var.create_github_repos_triggers ? toset(var.cloud_source_repos) : []
   project     = module.cloudbuild_project.project_id
   description = "${each.value} - destroy apply"
@@ -168,11 +178,6 @@ resource "google_cloudbuild_trigger" "github_destroy_plan" {
 
   filename = var.cloudbuild_plan_filename
   depends_on = [
-    github_repository.github_repo,
+    module.github_repository,
   ]
-}
-
-output "github_repos" {
-  description = "List of Github Repos created by the module, linked to Cloud Build triggers."
-  value       = github_repository.github_repo
 }
