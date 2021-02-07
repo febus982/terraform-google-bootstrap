@@ -73,6 +73,40 @@ resource "google_cloudbuild_trigger" "github_apply_trigger" {
 }
 
 /***********************************************
+ Cloud Build - Destroy triggers
+ ***********************************************/
+
+resource "google_cloudbuild_trigger" "github_apply_trigger" {
+  for_each    = var.create_github_repos_triggers ? toset(var.cloud_source_repos) : []
+  project     = module.cloudbuild_project.project_id
+  description = "${each.value} - destroy"
+
+  github {
+    name = each.value
+    owner = var.github_owner
+    push {
+      branch = local.destroy_branches_regex
+    }
+  }
+
+  substitutions = {
+    _ORG_ID               = var.org_id
+    _BILLING_ID           = var.billing_account
+    _DEFAULT_REGION       = var.default_region
+    _TF_SA_EMAIL          = var.terraform_sa_email
+    _STATE_BUCKET_NAME    = var.terraform_state_bucket
+    _ARTIFACT_BUCKET_NAME = google_storage_bucket.cloudbuild_artifacts.name
+    _TF_ACTION            = "apply"
+    _IMAGE_TAG            = "0.14"
+  }
+
+  filename = var.cloudbuild_apply_destroy_filename
+  depends_on = [
+    module.github_repository,
+  ]
+}
+
+/***********************************************
  Cloud Build - Plan triggers
  ***********************************************/
 
@@ -85,7 +119,7 @@ resource "google_cloudbuild_trigger" "github_plan_trigger" {
     name  = each.value
     owner = var.github_owner
     pull_request {
-      branch       = local.plan_branches_regex
+      branch       = local.apply_branches_regex
     }
   }
 
